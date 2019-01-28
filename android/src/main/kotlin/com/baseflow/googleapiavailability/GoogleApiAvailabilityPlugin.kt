@@ -12,14 +12,14 @@ import com.baseflow.googleapiavailability.utils.Codec
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 
-class GoogleApiAvailabilityPlugin(val activity: Activity) : MethodCallHandler {
+class GoogleApiAvailabilityPlugin(val context: Context) : MethodCallHandler {
     companion object {
         val REQUEST_GOOGLE_PLAY_SERVICES = 1000
 
         @JvmStatic
         fun registerWith(registrar: Registrar) {
             val channel = MethodChannel(registrar.messenger(), "flutter.baseflow.com/google_api_availability/methods")
-            channel.setMethodCallHandler(GoogleApiAvailabilityPlugin(activity = registrar.activity()))
+            channel.setMethodCallHandler(GoogleApiAvailabilityPlugin(context = registrar.context()))
         }
     }
 
@@ -28,10 +28,10 @@ class GoogleApiAvailabilityPlugin(val activity: Activity) : MethodCallHandler {
             call.method == "checkPlayServicesAvailability" -> {
                 val showDialog: Boolean? = call.argument("showDialog")
                 val googleApiAvailability = GoogleApiAvailability.getInstance()
-                val connectionResult = googleApiAvailability.isGooglePlayServicesAvailable(activity)
+                val connectionResult = googleApiAvailability.isGooglePlayServicesAvailable(context)
 
                 if (showDialog != null && showDialog){
-                    googleApiAvailability.showErrorDialogFragment(activity, connectionResult, REQUEST_GOOGLE_PLAY_SERVICES)
+                    googleApiAvailability.showErrorNotification(context, connectionResult)
                 }
 
                 val availability = toPlayServiceAvailability(connectionResult)
